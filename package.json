@@ -1,0 +1,25 @@
+{
+  "name": "wab3-token-kit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WAB 3 (WAB3) TRC-20 token kit: smart contract, compile, deploy, backend API, transaction listener",
+  "type": "module",
+  "scripts": {
+    "install:all": "npm install && npm install --prefix client",
+    "compile": "node scripts/compile.js",
+    "deploy": "node scripts/deploy.js",
+    "dev": "concurrently -k -n server,client -c blue,green \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix client",
+    "start": "npm run start --prefix server"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "solc": "^0.8.26",
+    "tronweb": "^6.1.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
