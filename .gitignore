@@ -110,6 +110,8 @@
 **/.env.*.local
 *.pem
 *.key
+# Runtime generated
+price-state.json
 
 # Temporary files
 *.tmp
