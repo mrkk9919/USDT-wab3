@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import Wab3Panel from './Wab3Panel.jsx';
+import WalletPage from './WalletPage.jsx';
 
 const DEFAULT_ADDRESSES = {
   tron: 'TWS1onJnNTg8tJHomceqxBxTsUB1DHh7PV',
@@ -139,13 +140,21 @@ export default function App() {
               >
                 USTD Token
               </button>
+              <button
+                className={`nav-tab ${activeTab === 'wallet' ? 'nav-tab-active' : ''}`}
+                onClick={() => setActiveTab('wallet')}
+              >
+                钱包
+              </button>
             </nav>
           </div>
         </div>
       </header>
 
       <main className="main">
-        {activeTab === 'wab3' ? (
+        {activeTab === 'wallet' ? (
+          <WalletPage />
+        ) : activeTab === 'wab3' ? (
           <Wab3Panel />
         ) : (
           <>
