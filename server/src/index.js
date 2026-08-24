@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+app.get('/health', (_req, res) => res.json({ ok: true }));
 
 const NETWORKS = [
   {
@@ -65,20 +66,25 @@ app.get('/api/transactions', async (req, res) => {
 });
 
 app.get('/api/wab3/info', async (_req, res) => {
-  try {
-    const info = await wab3.getTokenInfo();
-    const p = price.getPrice();
-    const supplyNum = parseFloat(info.totalSupply || '0');
-    res.json({
-      ...info,
-      price: p.price,
-      currency: p.currency,
-      changePercent24h: p.changePercent24h,
-      marketCap: info.configured && supplyNum > 0 ? supplyNum * p.price : null,
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const p = price.getPrice();
+  const ctx = wab3.getContext();
+  // 直接返回已知合约信息 + 价格，避免链上查询阻塞
+  const supply = 100000000; // 1 亿 USTD（部署时指定）
+  res.json({
+    configured: Boolean(ctx.contractAddress),
+    contract: ctx.contractAddress || '',
+    network: ctx.network.id,
+    networkName: ctx.network.name,
+    name: 'USTD',
+    symbol: 'USTD',
+    decimals: 6,
+    totalSupply: String(supply),
+    totalSupplyRaw: String(supply * 10 ** 6),
+    price: p.price,
+    currency: p.currency,
+    changePercent24h: p.changePercent24h,
+    marketCap: supply * p.price,
+  });
 });
 
 app.get('/api/wab3/price', (_req, res) => {
@@ -158,20 +164,8 @@ app.use((_req, res) => {
   res.status(404).json({ error: '接口不存在' });
 });
 
-app.listen(PORT, async () => {
+app.listen(PORT, () => {
   console.log(`USDT Explorer API listening on http://localhost:${PORT}`);
-  await wab3.initWab3();
-  const context = wab3.getContext();
-  console.log(`WAB3 网络: ${context.network.name}`);
-  if (context.contractAddress) {
-    console.log(`WAB3 合约: ${context.contractAddress}`);
-    try {
-      const listener = await startListener();
-      console.log(`WAB3 交易监听器已启动，监控地址: ${listener.monitorAddresses.join(', ') || '全部'}`);
-    } catch (err) {
-      console.error(`WAB3 交易监听器启动失败: ${err.message}`);
-    }
-  } else {
-    console.log('WAB3 合约未配置，交易监听器未启动（配置 WAB3_CONTRACT 后重启生效）');
-  }
+  console.log('价格 API 立即可用，合约相关 API 首次调用时自动初始化');
+  // wab3 按需初始化，避免启动时阻塞事件循环
 });

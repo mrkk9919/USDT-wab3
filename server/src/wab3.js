@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
-import { TronWeb } from 'tronweb';
+// tronweb 改为动态导入，避免模块加载阶段卡住导致服务器无法启动
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
@@ -44,6 +44,7 @@ export async function initWab3() {
   network = loadNetwork();
   contractAddress = loadContract();
   if (!tronWeb || tronWeb.fullNode.host !== network.fullHost) {
+    const { TronWeb } = await import('tronweb');
     const pk = (process.env.DEPLOYER_PRIVATE_KEY || process.env.PRIVATE_KEY || '').trim();
     if (pk) {
       tronWeb = new TronWeb({ fullHost: network.fullHost, privateKey: pk });
