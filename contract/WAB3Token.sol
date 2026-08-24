@@ -8,7 +8,7 @@ pragma solidity ^0.8.20;
  */
 contract WAB3Token {
     string public constant name = "USTD";
-    string public constant symbol = "WAB3";
+    string public constant symbol = "USTD";
     uint8 public constant decimals = 6;
 
     uint256 public immutable totalSupply;

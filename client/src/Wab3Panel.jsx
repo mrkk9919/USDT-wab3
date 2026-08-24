@@ -158,21 +158,21 @@ export default function Wab3Panel() {
       {infoError ? (
         <section className="card">
           <div className="wab3-hero">
-            <img src="/wab3-logo.svg" alt="WAB3 Logo" className="wab3-logo" />
+            <img src="/USTD-logo.png" alt="WAB3 Logo" className="wab3-logo" />
             <div>
-              <h2>WAB3 Token</h2>
+              <h2>USTD Token</h2>
               <p className="placeholder">{infoError}</p>
             </div>
           </div>
         </section>
       ) : !info ? (
         <section className="card">
-          <p className="placeholder">正在加载 WAB3 Token 信息...</p>
+          <p className="placeholder">正在加载 USTD Token 信息...</p>
         </section>
       ) : (
         <section className="card">
           <div className="wab3-hero">
-            <img src="/wab3-logo.svg" alt="WAB3 Logo" className="wab3-logo" />
+            <img src="/USTD-logo.png" alt="WAB3 Logo" className="wab3-logo" />
             <div className="wab3-info">
               <div className="wab3-title-row">
                 <h2>{info.name}</h2>
@@ -251,7 +251,7 @@ export default function Wab3Panel() {
 
       <section className="card">
         <div className="card-title">
-          <h2>WAB3 余额与转账历史</h2>
+          <h2>USTD 余额与转账历史</h2>
           <span className="count">TRC-20 · 6 位小数</span>
         </div>
         <div className="search-row">
@@ -272,7 +272,7 @@ export default function Wab3Panel() {
 
       {balance && (
         <section className="card balance-card">
-          <div className="balance-label">WAB3 余额</div>
+          <div className="balance-label">USTD 余额</div>
           <div className="balance-value">{balance.formatted}</div>
           {balanceUsd !== null && (
             <div className="balance-usd">≈ {formatUsd(balanceUsd)} USDT</div>
@@ -286,11 +286,11 @@ export default function Wab3Panel() {
 
       <section className="card tx-card">
         <div className="card-title">
-          <h2>最近 WAB3 转账记录</h2>
+          <h2>最近 USTD 转账记录</h2>
           {txs && <span className="count">共 {txs.count} 条</span>}
         </div>
         {!txs && !loading && (
-          <p className="placeholder">输入地址后查询最近的 WAB3 TRC-20 转账记录</p>
+          <p className="placeholder">输入地址后查询最近的 USTD TRC-20 转账记录</p>
         )}
         {txs && (
           <div className="tx-table-wrap">
@@ -299,7 +299,7 @@ export default function Wab3Panel() {
                 <tr>
                   <th>发起方</th>
                   <th>接收方</th>
-                  <th>金额 (WAB3)</th>
+                  <th>金额 (USTD)</th>
                   <th>价值 (USDT)</th>
                   <th>时间</th>
                   <th>TXID</th>
@@ -318,7 +318,7 @@ export default function Wab3Panel() {
                 ))}
                 {txs.transactions.length === 0 && (
                   <tr>
-                    <td colSpan="6" className="placeholder">该地址暂无 WAB3 转账记录</td>
+                    <td colSpan="6" className="placeholder">该地址暂无 USTD 转账记录</td>
                   </tr>
                 )}
               </tbody>
@@ -368,7 +368,7 @@ export default function Wab3Panel() {
             </div>
             {listener.lastError && <p className="error">{listener.lastError}</p>}
             {listener.logs.length === 0 ? (
-              <p className="placeholder">暂无监听到的 WAB3 转账事件</p>
+              <p className="placeholder">暂无监听到的 USTD 转账事件</p>
             ) : (
               <div className="tx-table-wrap">
                 <table className="tx-table">

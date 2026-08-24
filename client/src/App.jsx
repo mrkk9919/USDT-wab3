@@ -113,12 +113,12 @@ export default function App() {
           <div className="logo-row">
             <div className="logo">
               {activeTab === 'wab3' ? (
-                <img src="/wab3-logo.svg" alt="WAB3 Logo" className="logo-icon-img" />
+                <img src="/USTD-logo.png" alt="USTD Logo" className="logo-icon-img" />
               ) : (
                 <span className="logo-icon">U</span>
               )}
               <div>
-                <h1>{activeTab === 'wab3' ? 'WAB3 Token' : 'USDT Explorer'}</h1>
+                <h1>{activeTab === 'wab3' ? 'USTD Token' : 'USDT Explorer'}</h1>
                 <p>
                   {activeTab === 'wab3'
                     ? 'TRC-20 智能合约 · 部署 / 查询 / 监听'
@@ -137,7 +137,7 @@ export default function App() {
                 className={`nav-tab ${activeTab === 'wab3' ? 'nav-tab-active' : ''}`}
                 onClick={() => setActiveTab('wab3')}
               >
-                WAB3 Token
+                USTD Token
               </button>
             </nav>
           </div>
@@ -243,7 +243,7 @@ export default function App() {
 
       <footer className="footer">
         <p>
-          WAB3 Token (TRC-20) · 数据来源于 TRONGrid / 以太坊公开节点，仅供学习与演示用途
+          USTD Token (TRC-20) · 数据来源于 TRONGrid / 以太坊公开节点，仅供学习与演示用途
         </p>
       </footer>
     </div>
