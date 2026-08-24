@@ -1,0 +1,14 @@
+{
+  "name": "USTD",
+  "symbol": "USTD",
+  "decimals": 6,
+  "network": "shasta",
+  "networkName": "Shasta Testnet",
+  "contractAddress": "TXQs7gk18BqwTeozuwBiUfZeCDARMBitkL",
+  "owner": "THFkAXUiavqA9pQ7zKUxtH2qwLud777vrK",
+  "supply": 100000000,
+  "supplyRaw": "100000000000000",
+  "txID": "eb62157fc598b3591dd039b40add9a70416bef9008caf21dfcdeb50dc1183aa1",
+  "explorer": "https://shasta.tronscan.org/#/transaction/eb62157fc598b3591dd039b40add9a70416bef9008caf21dfcdeb50dc1183aa1",
+  "deployedAt": "2026-08-24T06:40:00.000Z"
+}

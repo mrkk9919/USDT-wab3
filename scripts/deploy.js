@@ -23,11 +23,11 @@ const tronWeb = new TronWeb({
 
 const owner = tronWeb.address.fromPrivateKey(env.privateKey);
 
-console.log('========== 部署 WAB3Token ==========');
-console.log(`Token     : WAB 3 (WAB3) · TRC-20 · 6 decimals`);
+console.log('========== 部署 USTD Token ==========');
+console.log(`Token     : USTD · TRC-20 · 6 decimals`);
 console.log(`网络      : ${env.network.name} (${env.network.fullHost})`);
 console.log(`部署者    : ${owner}`);
-console.log(`总发行量  : ${env.supply.toLocaleString('en-US')} WAB3`);
+console.log(`总发行量  : ${env.supply.toLocaleString('en-US')} USTD`);
 
 const tx = await tronWeb.transactionBuilder.createSmartContract({
   feeLimit: 500_000_000,
@@ -76,15 +76,15 @@ if (!contractAddress) {
 const contractAddressBase58 = tronWeb.address.fromHex(contractAddress);
 
 const deployment = {
-  name: 'WAB 3',
-  symbol: 'WAB3',
+  name: 'USTD',
+  symbol: 'USTD',
   decimals: 6,
   network: env.network.id,
   networkName: env.network.name,
   contractAddress: contractAddressBase58,
   owner: owner,
   supply: env.supply,
-  supplyRaw: BigInt(env.supply) * 10n ** 6n,
+  supplyRaw: (BigInt(env.supply) * 10n ** 6n).toString(),
   txID,
   explorer: `${env.network.explorer}/#/transaction/${txID}`,
   deployedAt: new Date().toISOString(),
