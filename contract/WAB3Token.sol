@@ -7,7 +7,7 @@ pragma solidity ^0.8.20;
  * 全部代币在部署时铸造给合约部署者（owner）。
  */
 contract WAB3Token {
-    string public constant name = "WAB 3";
+    string public constant name = "USTD";
     string public constant symbol = "WAB3";
     uint8 public constant decimals = 6;
 
