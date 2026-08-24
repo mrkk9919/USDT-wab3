@@ -4,6 +4,7 @@ import { validateAddress } from './address.js';
 import * as tron from './tron.js';
 import * as eth from './eth.js';
 import * as wab3 from './wab3.js';
+import * as price from './price.js';
 import { isValidTronAddress } from './address.js';
 import { startListener, stopListener, listenerStatus } from './listener.js';
 
@@ -66,10 +67,37 @@ app.get('/api/transactions', async (req, res) => {
 app.get('/api/wab3/info', async (_req, res) => {
   try {
     const info = await wab3.getTokenInfo();
-    res.json(info);
+    const p = price.getPrice();
+    const supplyNum = parseFloat(info.totalSupply || '0');
+    res.json({
+      ...info,
+      price: p.price,
+      currency: p.currency,
+      changePercent24h: p.changePercent24h,
+      marketCap: info.configured && supplyNum > 0 ? supplyNum * p.price : null,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+app.get('/api/wab3/price', (_req, res) => {
+  res.json(price.getPrice());
+});
+
+app.post('/api/wab3/price', (req, res) => {
+  try {
+    const { price: newPrice } = req.body || {};
+    const result = price.setPrice(newPrice);
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.get('/api/wab3/price/history', (req, res) => {
+  const limit = req.query.limit;
+  res.json({ history: price.getPriceHistory(limit) });
 });
 
 app.get('/api/wab3/balance', async (req, res) => {

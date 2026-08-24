@@ -10,15 +10,35 @@ function formatTime(iso) {
   return new Date(iso).toLocaleString('zh-CN', { hour12: false });
 }
 
+function formatUsd(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return '-';
+  if (num >= 1_000_000) return `$${(num / 1_000_000).toFixed(2)}M`;
+  if (num >= 1000) return `$${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  if (num >= 1) return `$${num.toFixed(2)}`;
+  return `$${num.toFixed(6)}`;
+}
+
+function formatPrice(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return '-';
+  if (num >= 1) return num.toFixed(4);
+  return num.toFixed(6);
+}
+
 export default function Wab3Panel() {
   const [info, setInfo] = useState(null);
   const [infoError, setInfoError] = useState('');
+  const [priceData, setPriceData] = useState(null);
   const [address, setAddress] = useState('');
   const [balance, setBalance] = useState(null);
   const [txs, setTxs] = useState(null);
   const [listener, setListener] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPriceSetter, setShowPriceSetter] = useState(false);
+  const [newPrice, setNewPrice] = useState('');
+  const [priceLoading, setPriceLoading] = useState(false);
 
   const fetchInfo = useCallback(async () => {
     const res = await fetch('/api/wab3/info');
@@ -32,6 +52,16 @@ export default function Wab3Panel() {
     }
   }, []);
 
+  const fetchPrice = useCallback(async () => {
+    try {
+      const res = await fetch('/api/wab3/price');
+      const json = await res.json();
+      if (res.ok) setPriceData(json);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const fetchListener = useCallback(async () => {
     const res = await fetch('/api/wab3/listener');
     const json = await res.json();
@@ -40,10 +70,15 @@ export default function Wab3Panel() {
 
   useEffect(() => {
     fetchInfo();
+    fetchPrice();
     fetchListener();
-    const timer = setInterval(fetchListener, 5000);
-    return () => clearInterval(timer);
-  }, [fetchInfo, fetchListener]);
+    const priceTimer = setInterval(fetchPrice, 10000);
+    const listenerTimer = setInterval(fetchListener, 5000);
+    return () => {
+      clearInterval(priceTimer);
+      clearInterval(listenerTimer);
+    };
+  }, [fetchInfo, fetchPrice, fetchListener]);
 
   const handleSearch = async () => {
     setError('');
@@ -73,6 +108,32 @@ export default function Wab3Panel() {
     }
   };
 
+  const handleSetPrice = async () => {
+    const val = parseFloat(newPrice);
+    if (!Number.isFinite(val) || val <= 0) {
+      setError('请输入有效的价格');
+      return;
+    }
+    setPriceLoading(true);
+    try {
+      const res = await fetch('/api/wab3/price', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ price: val }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || '设置价格失败');
+      setPriceData(json);
+      setNewPrice('');
+      setShowPriceSetter(false);
+      fetchInfo();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setPriceLoading(false);
+    }
+  };
+
   const handleStartListener = async () => {
     const res = await fetch('/api/wab3/listener/start', { method: 'POST' });
     const json = await res.json();
@@ -86,6 +147,11 @@ export default function Wab3Panel() {
     await fetch('/api/wab3/listener/stop', { method: 'POST' });
     fetchListener();
   };
+
+  const currentPrice = priceData?.price ?? info?.price ?? 0;
+  const changePercent = priceData?.changePercent24h ?? info?.changePercent24h ?? 0;
+  const balanceUsd = balance ? parseFloat(balance.formatted) * currentPrice : null;
+  const marketCap = info?.marketCap ?? (info?.totalSupply ? parseFloat(info.totalSupply) * currentPrice : null);
 
   return (
     <div className="wab3-panel">
@@ -112,6 +178,42 @@ export default function Wab3Panel() {
                 <h2>{info.name}</h2>
                 <span className="symbol-badge">{info.symbol}</span>
               </div>
+              <div className="price-row">
+                <span className="price-label">1 {info.symbol} =</span>
+                <span className="price-value">{formatPrice(currentPrice)} USDT</span>
+                <span className={`price-change ${changePercent >= 0 ? 'up' : 'down'}`}>
+                  {changePercent >= 0 ? '▲' : '▼'} {Math.abs(changePercent).toFixed(2)}%
+                </span>
+                <button
+                  className="btn-ghost btn-sm price-edit-btn"
+                  onClick={() => setShowPriceSetter(!showPriceSetter)}
+                >
+                  设置
+                </button>
+              </div>
+              {showPriceSetter && (
+                <div className="price-setter">
+                  <input
+                    className="address-input price-input"
+                    type="number"
+                    step="0.000001"
+                    min="0"
+                    placeholder="输入新价格 (USDT)"
+                    value={newPrice}
+                    onChange={(e) => setNewPrice(e.target.value)}
+                  />
+                  <button
+                    className="btn-primary btn-sm"
+                    onClick={handleSetPrice}
+                    disabled={priceLoading}
+                  >
+                    {priceLoading ? '提交中...' : '确认'}
+                  </button>
+                  <button className="btn-ghost btn-sm" onClick={() => setShowPriceSetter(false)}>
+                    取消
+                  </button>
+                </div>
+              )}
               <div className="info-grid">
                 <div className="info-item">
                   <span className="info-label">网络</span>
@@ -126,6 +228,18 @@ export default function Wab3Panel() {
                   <span className="info-value">{info.totalSupply} {info.symbol}</span>
                 </div>
                 <div className="info-item">
+                  <span className="info-label">市值</span>
+                  <span className="info-value">{marketCap !== null ? formatUsd(marketCap) : '-'}</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">24h 最高</span>
+                  <span className="info-value">{priceData ? formatPrice(priceData.high24h) : '-'} USDT</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">24h 最低</span>
+                  <span className="info-value">{priceData ? formatPrice(priceData.low24h) : '-'} USDT</span>
+                </div>
+                <div className="info-item info-item-full">
                   <span className="info-label">合约地址</span>
                   <span className="info-value mono">{shortAddr(info.contract)}</span>
                 </div>
@@ -160,6 +274,9 @@ export default function Wab3Panel() {
         <section className="card balance-card">
           <div className="balance-label">WAB3 余额</div>
           <div className="balance-value">{balance.formatted}</div>
+          {balanceUsd !== null && (
+            <div className="balance-usd">≈ {formatUsd(balanceUsd)} USDT</div>
+          )}
           <div className="balance-meta">
             <span>{balance.network}</span>
             <span className="mono">{shortAddr(balance.address)}</span>
@@ -183,6 +300,7 @@ export default function Wab3Panel() {
                   <th>发起方</th>
                   <th>接收方</th>
                   <th>金额 (WAB3)</th>
+                  <th>价值 (USDT)</th>
                   <th>时间</th>
                   <th>TXID</th>
                 </tr>
@@ -193,13 +311,14 @@ export default function Wab3Panel() {
                     <td className="mono">{shortAddr(tx.from)}</td>
                     <td className="mono">{shortAddr(tx.to)}</td>
                     <td className="amount">{tx.value}</td>
+                    <td className="amount usd-amount">{formatUsd(parseFloat(tx.value) * currentPrice)}</td>
                     <td>{formatTime(new Date(tx.timestamp).toISOString())}</td>
                     <td className="mono">{shortAddr(tx.txId)}</td>
                   </tr>
                 ))}
                 {txs.transactions.length === 0 && (
                   <tr>
-                    <td colSpan="5" className="placeholder">该地址暂无 WAB3 转账记录</td>
+                    <td colSpan="6" className="placeholder">该地址暂无 WAB3 转账记录</td>
                   </tr>
                 )}
               </tbody>
@@ -257,6 +376,7 @@ export default function Wab3Panel() {
                     <tr>
                       <th>方向</th>
                       <th>金额</th>
+                      <th>价值 (USDT)</th>
                       <th>发起方</th>
                       <th>接收方</th>
                       <th>时间</th>
@@ -272,6 +392,7 @@ export default function Wab3Panel() {
                           </span>
                         </td>
                         <td className="amount">{log.value}</td>
+                        <td className="amount usd-amount">{formatUsd(parseFloat(log.value) * currentPrice)}</td>
                         <td className="mono">{shortAddr(log.from)}</td>
                         <td className="mono">{shortAddr(log.to)}</td>
                         <td>{formatTime(log.timestamp)}</td>

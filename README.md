@@ -155,11 +155,37 @@ curl -X POST http://localhost:3001/api/wab3/listener/start
 
 ---
 
+## 币价与 USDT 估值
+WAB3 内置价格管理模块，以 USDT 计价，支持动态设置币价并自动计算 USD 估值。
+
+价格数据持久化在项目根目录 `price-state.json`，服务重启后自动恢复。
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/api/wab3/price` | 当前价格、24h 涨跌幅、24h 最高/最低 |
+| POST | `/api/wab3/price` | 设置新价格，body: `{"price": 1.25}` |
+| GET | `/api/wab3/price/history` | 价格历史（`?limit=48`） |
+
+前端 WAB3 页面会自动展示：
+- 当前币价 `1 WAB3 = X USDT` 及 24h 涨跌幅
+- 总市值（总发行量 × 当前价格）
+- 地址余额的 USDT 估值
+- 每笔转账记录的 USDT 价值
+- 管理员可点击「设置」按钮直接调整币价
+
+初始价格通过 `.env` 配置：
+```dotenv
+WAB3_INITIAL_PRICE=1.00
+```
+
 ## 后端 API 一览
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/api/wab3/info` | Token 信息（名称/符号/精度/总发行量/合约地址） |
+| GET | `/api/wab3/info` | Token 信息（名称/符号/精度/总发行量/合约地址/当前价格/市值） |
+| GET | `/api/wab3/price` | 当前价格与 24h 涨跌统计 |
+| POST | `/api/wab3/price` | 设置 WAB3 价格（USDT） |
+| GET | `/api/wab3/price/history` | 价格历史记录 |
 | GET | `/api/wab3/balance?address=` | 查询 WAB3 余额 |
 | GET | `/api/wab3/transfers?address=` | 查询 TRC-20 转账历史 |
 | POST | `/api/wab3/transfer` | 发起 WAB3 转账，返回 TXID |

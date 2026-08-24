@@ -335,6 +335,80 @@ body {
   margin-bottom: 12px;
 }
 
+.price-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.price-label {
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.price-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.price-change {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 8px;
+}
+
+.price-change.up {
+  background: var(--badge-in);
+  color: var(--badge-in-text);
+}
+
+.price-change.down {
+  background: var(--badge-out);
+  color: var(--badge-out-text);
+}
+
+.price-edit-btn {
+  color: var(--text-dim);
+  border-color: var(--card-border);
+}
+
+.price-edit-btn:hover {
+  color: var(--text);
+  border-color: var(--primary);
+}
+
+.price-setter {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  align-items: center;
+}
+
+.price-input {
+  max-width: 200px;
+}
+
+.balance-usd {
+  color: var(--text-dim);
+  font-size: 16px;
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.usd-amount {
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.info-item-full {
+  grid-column: 1 / -1;
+}
+
 .wab3-title-row h2 {
   font-size: 22px;
   font-weight: 700;
