@@ -12,8 +12,24 @@ fi
 # 1. 安装 Node.js 18, git, nginx
 echo "[1/8] 安装 Node.js, git, nginx..."
 if ! command -v node &>/dev/null; then
-  curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
-  yum install -y nodejs git nginx
+  # 检测架构
+  ARCH=$(uname -m)
+  case "$ARCH" in
+    x86_64|amd64) NODE_ARCH="x64" ;;
+    aarch64|arm64) NODE_ARCH="arm64" ;;
+    *) echo "不支持的架构: $ARCH"; exit 1 ;;
+  esac
+  # CentOS 7 glibc 2.17 太低，直接下载官方二进制文件
+  NODE_VER="v18.20.4"
+  echo "下载 Node.js $NODE_VER linux-$NODE_ARCH..."
+  cd /tmp
+  curl -fsSL -o node.tar.xz "https://nodejs.org/dist/$NODE_VER/node-$NODE_VER-linux-$NODE_ARCH.tar.xz"
+  tar -xf node.tar.xz -C /usr/local --strip-components=1
+  rm -f node.tar.xz
+  export PATH="/usr/local/bin:$PATH"
+  echo "Node.js 安装完成: $(node -v)"
+  # 安装 git 和 nginx
+  yum install -y git nginx 2>/dev/null || true
 else
   echo "Node.js 已安装: $(node -v)"
   yum install -y git nginx 2>/dev/null || true
@@ -97,10 +113,11 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/opt/USDT-wab3
-ExecStart=/usr/bin/node server/src/index.js
+ExecStart=/usr/local/bin/node server/src/index.js
 Restart=always
 RestartSec=5
 Environment=NODE_ENV=production
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
 
 [Install]
 WantedBy=multi-user.target
