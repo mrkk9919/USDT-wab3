@@ -54,7 +54,7 @@
 **/.Python
 **/build/
 **/develop-eggs/
-**/dist/
+# **/dist/ (client/dist committed for deployment)
 **/downloads/
 **/eggs/
 **/.eggs/
