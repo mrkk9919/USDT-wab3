@@ -1,3 +1,7 @@
+// Node.js 16 没有全局 fetch，用 node-fetch polyfill
+import fetch from 'node-fetch';
+globalThis.fetch = fetch;
+
 import express from 'express';
 import cors from 'cors';
 import { validateAddress } from './address.js';
