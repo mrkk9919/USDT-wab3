@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Wab3Panel from './Wab3Panel.jsx';
 import WalletPage from './WalletPage.jsx';
+import MarketPage from './MarketPage.jsx';
 
 const DEFAULT_ADDRESSES = {
   tron: 'TWS1onJnNTg8tJHomceqxBxTsUB1DHh7PV',
@@ -146,6 +147,12 @@ export default function App() {
               >
                 钱包
               </button>
+              <button
+                className={`nav-tab ${activeTab === 'market' ? 'nav-tab-active' : ''}`}
+                onClick={() => setActiveTab('market')}
+              >
+                交易市场
+              </button>
             </nav>
           </div>
         </div>
@@ -154,6 +161,8 @@ export default function App() {
       <main className="main">
         {activeTab === 'wallet' ? (
           <WalletPage />
+        ) : activeTab === 'market' ? (
+          <MarketPage />
         ) : activeTab === 'wab3' ? (
           <Wab3Panel />
         ) : (

@@ -11,12 +11,21 @@ import * as wab3 from './wab3.js';
 import * as price from './price.js';
 import { isValidTronAddress } from './address.js';
 import { startListener, stopListener, listenerStatus } from './listener.js';
+import marketApi from './market/marketApi.js';
+import { TronWeb } from 'tronweb';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// 初始化 TronWeb 供 market 模块使用
+const FULL_HOST = process.env.TRON_NETWORK === 'mainnet'
+  ? 'https://api.trongrid.io'
+  : 'https://api.shasta.trongrid.io';
+app.locals.tronWeb = new TronWeb({ fullHost: FULL_HOST });
+
 app.use(cors());
 app.use(express.json());
+app.use('/api/market', marketApi);
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
 const NETWORKS = [
