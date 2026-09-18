@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import Wab3Panel from './Wab3Panel.jsx';
 import WalletPage from './WalletPage.jsx';
 import MarketPage from './MarketPage.jsx';
+import { subscribe, getState } from './lib/wallet.js';
+import WalletModal from './components/WalletModal.jsx';
 
 const DEFAULT_ADDRESSES = {
   tron: 'TWS1onJnNTg8tJHomceqxBxTsUB1DHh7PV',
@@ -44,6 +46,9 @@ export default function App() {
   const [txs, setTxs] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [wallet, setWallet] = useState(getState());
+  const [walletOpen, setWalletOpen] = useState(false);
+  useEffect(() => subscribe(setWallet), []);
 
   useEffect(() => {
     fetch('/api/networks')
@@ -154,9 +159,19 @@ export default function App() {
                 交易市场
               </button>
             </nav>
+            <button
+              className={`connect-wallet-btn ${wallet.connected ? 'connected' : ''}`}
+              onClick={() => setWalletOpen(true)}
+            >
+              {wallet.connected
+                ? `${wallet.icon || '👛'} ${wallet.name} · ${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`
+                : '连接钱包'}
+            </button>
           </div>
         </div>
       </header>
+
+      <WalletModal open={walletOpen} onClose={() => setWalletOpen(false)} />
 
       <main className="main">
         {activeTab === 'wallet' ? (

@@ -1214,3 +1214,93 @@ body {
   color: #fbbf24;
   font-size: 12px;
 }
+
+/* ===== 全局连接钱包按钮 ===== */
+.connect-wallet-btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid #4ade80;
+  background: rgba(74,222,128,0.12);
+  color: #4ade80;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .2s;
+  margin-left: 12px;
+}
+.connect-wallet-btn:hover { background: rgba(74,222,128,0.25); }
+.connect-wallet-btn.connected {
+  background: #4ade80;
+  color: #052e16;
+}
+
+/* ===== 钱包选择弹窗 ===== */
+.wallet-modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.wallet-modal {
+  background: #141b1f;
+  border: 1px solid #2a3530;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  padding: 22px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.wallet-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.wallet-modal-header h3 { color: #fff; font-size: 18px; }
+.wallet-modal-close {
+  background: none; border: none; color: #888;
+  font-size: 18px; cursor: pointer;
+}
+.wallet-modal-sub { color: #888; font-size: 13px; margin-bottom: 16px; }
+.wallet-list { display: flex; flex-direction: column; gap: 10px; }
+.wallet-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #2a3530;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  color: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: all .15s;
+}
+.wallet-item:hover { border-color: #4ade80; background: rgba(74,222,128,0.06); }
+.wallet-item:disabled { opacity: .6; cursor: default; }
+.wallet-icon { font-size: 26px; }
+.wallet-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.wallet-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.wallet-badge {
+  font-size: 11px; padding: 1px 8px; border-radius: 999px;
+  background: rgba(74,222,128,0.15); color: #4ade80; font-weight: 500;
+}
+.wallet-desc { font-size: 12px; color: #888; line-height: 1.4; }
+.wallet-loading { color: #4ade80; font-size: 13px; }
+.wallet-empty { color: #888; font-size: 14px; text-align: center; padding: 20px 0; }
+.wallet-empty-tip { font-size: 12px; color: #666; margin-top: 8px; line-height: 1.5; }
+.wallet-modal-error {
+  margin-top: 14px; padding: 10px; border-radius: 8px;
+  background: rgba(239,68,68,0.12); border: 1px solid #ef4444;
+  color: #fca5a5; font-size: 13px;
+}
+.swap-notice {
+  margin-top: 10px; padding: 10px; border-radius: 8px;
+  background: rgba(251,191,36,0.1); border: 1px solid #fbbf24;
+  color: #fbbf24; font-size: 12px; line-height: 1.5;
+}

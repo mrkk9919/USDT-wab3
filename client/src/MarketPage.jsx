@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
+import { subscribe, getState } from './lib/wallet.js';
+import WalletModal from './components/WalletModal.jsx';
 
 const POOL_CONTRACT = 'THYp7d4u4WLi7kJGEXqyytpcVdhYgCVYRN';
 const USTD_CONTRACT = 'TXQs7gk18BqwTeozuwBiUfZeCDARMBitkL';
@@ -23,11 +25,14 @@ export default function MarketPage() {
   const [inputAmount, setInputAmount] = useState('');
   const [quote, setQuote] = useState(null);
   const [slippage, setSlippage] = useState(0.5);
-  const [walletAddr, setWalletAddr] = useState('');
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState('');
   const [error, setError] = useState('');
   const [activeSubTab, setActiveSubTab] = useState('swap'); // swap | pool
+  const [walletOpen, setWalletOpen] = useState(false);
+  const [wallet, setWallet] = useState(getState());
+
+  useEffect(() => subscribe(setWallet), []);
 
   const fetchPool = useCallback(async () => {
     try {
@@ -80,25 +85,13 @@ export default function MarketPage() {
       .catch(() => setQuote(null));
   }, [inputAmount, isBuy, pool]);
 
-  const connectWallet = async () => {
-    if (!window.tronWeb) {
-      setError('请先安装 TronLink 钱包插件');
-      return;
-    }
-    try {
-      const accounts = await window.tronWeb.request({ method: 'tron_requestAccounts' });
-      if (accounts && accounts.length > 0) {
-        setWalletAddr(accounts[0]);
-        setError('');
-      }
-    } catch (e) {
-      setError('钱包连接失败: ' + e.message);
-    }
+  const connectWallet = () => {
+    setWalletOpen(true);
   };
 
   const handleSwap = async () => {
-    if (!walletAddr) {
-      setError('请先连接钱包');
+    if (!wallet.connected || !wallet.canSignTron) {
+      setError('请先连接支持 TRON 的钱包（TronLink 或在 OKX 中切到 TRON 网络）');
       return;
     }
     if (!inputAmount || Number(inputAmount) <= 0) {
@@ -109,7 +102,7 @@ export default function MarketPage() {
     setError('');
     setTxHash('');
     try {
-      const tronWeb = window.tronWeb;
+      const tronWeb = wallet.tronWeb;
       const contract = await tronWeb.contract().at(POOL_CONTRACT);
       let tx;
       if (isBuy) {
@@ -195,7 +188,9 @@ export default function MarketPage() {
                 className="swap-input"
               />
               <div className="swap-balance">
-                {walletAddr ? `钱包: ${shortAddr(walletAddr)}` : '未连接钱包'}
+                {wallet.connected
+                  ? `${wallet.icon} ${wallet.name}: ${shortAddr(wallet.address)}`
+                  : '未连接钱包'}
               </div>
             </div>
 
@@ -225,9 +220,9 @@ export default function MarketPage() {
               </div>
             </div>
 
-            {!walletAddr ? (
+            {!wallet.connected ? (
               <button className="btn-primary swap-btn" onClick={connectWallet}>
-                连接 TronLink 钱包
+                连接钱包 (TronLink / OKX / 币安)
               </button>
             ) : (
               <button
@@ -237,6 +232,12 @@ export default function MarketPage() {
               >
                 {loading ? '交易中...' : `确认${isBuy ? '买入' : '卖出'}`}
               </button>
+            )}
+
+            {wallet.connected && !wallet.canSignTron && (
+              <div className="swap-notice">
+                已连接 {wallet.name}，但当前不支持 TRON 签名。请在该钱包内切换到 TRON/Shasta 网络，或改用 TronLink。
+              </div>
             )}
 
             {error && <div className="swap-error">{error}</div>}
@@ -335,6 +336,7 @@ export default function MarketPage() {
           </div>
         </div>
       )}
+      <WalletModal open={walletOpen} onClose={() => setWalletOpen(false)} />
     </div>
   );
 }
